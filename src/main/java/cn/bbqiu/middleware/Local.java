@@ -52,6 +52,10 @@ public abstract class Local {
      * 计算本地最大任务
      */
     private void calculationLocalMaxTask(){
+        if (null == coordinatorTask) {
+            this.maxTask = 0;
+            return;
+        }
         this.maxTask = coordinatorTask.size() / peerNum;
         if (0 != coordinatorTask.size() % peerNum) {
             this.maxTask++;

@@ -16,6 +16,6 @@ public class App1 {
     static Coordinator coordinator = new ZkCoordinator("127.0.0.1", "/coordinator/test", 10);
 
     public static void main(String[] args) {
-        coordinator.start(CoordinatorTaskLoadingUtil.coordinatorTaskLoading());
+        coordinator.start(CoordinatorTaskLoadingUtil.coordinatorTaskLoading(), String.valueOf(System.currentTimeMillis()));
     }
 }

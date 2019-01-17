@@ -24,7 +24,7 @@ public abstract class AbstractTaskManager implements TaskManager {
 
         Map<String, TaskSurvivalEntity> survivalMap = Maps.newHashMap();
         if (null != coordinatorTask) {
-            logger.debug("coordinatorTask:", coordinatorTask.size());
+            logger.debug(String.format("coordinatorTask: %d", coordinatorTask.size()));
             coordinatorTask.stream().forEach(x -> {
                 TaskSurvivalEntity entity = new TaskSurvivalEntity();
                 entity.setInCoordinator(true);

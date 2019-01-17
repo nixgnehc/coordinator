@@ -13,7 +13,10 @@ import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.xml.soap.Node;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -34,8 +37,9 @@ public class ZkCoordinator extends AbstractCoordinator {
 
     private TaskManager taskManager;
 
-    @Getter
     private int taskRefreshFrequency = 60;
+
+    private Logger logger = LoggerFactory.getLogger(ZkCoordinator.class);
 
     /**
      * @param zkHosts  host:port,host1:port1......
@@ -46,8 +50,8 @@ public class ZkCoordinator extends AbstractCoordinator {
     }
 
     public ZkCoordinator(String zkHosts, String basePath, int taskRefreshFrequency) {
-        zkDefine = new ZkDefine(zkHosts, basePath);
         this.taskRefreshFrequency = taskRefreshFrequency;
+        zkDefine = new ZkDefine(zkHosts, basePath);
     }
 
 
@@ -59,7 +63,7 @@ public class ZkCoordinator extends AbstractCoordinator {
             @Override
             public void run() {
                 try {
-                    if (!(zkLock.acquire(0, TimeUnit.SECONDS) && zkLock.isAcquiredInThisProcess())) {
+                    if (!(zkLock.acquire(0, TimeUnit.SECONDS) || zkLock.isAcquiredInThisProcess())) {
                         return;
                     }
                     if (maintenanceSign) {
@@ -77,25 +81,43 @@ public class ZkCoordinator extends AbstractCoordinator {
 
     @Override
     public void localTask() {
-        new NodeCache(zkLocal.getClient(), zkDefine.getTaskBasePath()).getListenable().addListener(new NodeCacheListener() {
-            @Override
-            public void nodeChanged() throws Exception {
-                zkLocal.setCoordinatorTask(zkLocal.getClient().getChildren().forPath(zkDefine.getTaskBasePath()));
-                balance(ReBalanceSource.TASK);
-            }
-        });
+        try {
+            NodeCache nodeCache = new NodeCache(zkLocal.getClient(), zkDefine.getTaskBasePath());
+
+            nodeCache.getListenable().addListener(new NodeCacheListener() {
+                @Override
+                public void nodeChanged() throws Exception {
+
+                    List<String> list = zkLocal.getClient().getChildren().forPath(zkDefine.getTaskBasePath());
+                    logger.debug(String.format("trigger localTask, task size:%d", list.size()));
+                    zkLocal.setCoordinatorTask(list);
+                    balance(ReBalanceSource.TASK);
+                }
+            });
+            nodeCache.start(true);
+        } catch (Exception e) {
+            logger.error("localTask :", e);
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void peers() {
 
-        new NodeCache(zkLocal.getClient(), zkDefine.getPeersBasePath()).getListenable().addListener(new NodeCacheListener() {
-            @Override
-            public void nodeChanged() throws Exception {
-                zkLocal.setPeerNum(zkLocal.getClient().getChildren().forPath(zkDefine.getPeersBasePath()).size());
-                balance(ReBalanceSource.PEER);
-            }
-        });
+        try {
+            NodeCache nodeCache = new NodeCache(zkLocal.getClient(), zkDefine.getPeersBasePath());
+            nodeCache.getListenable().addListener(new NodeCacheListener() {
+                @Override
+                public void nodeChanged() throws Exception {
+                    zkLocal.setPeerNum(zkLocal.getClient().getChildren().forPath(zkDefine.getPeersBasePath()).size());
+                    balance(ReBalanceSource.PEER);
+                }
+            });
+            nodeCache.start(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("peers:", e);
+        }
 
         zkBiz.createProvisionalPath(String.format("%s/%s", zkDefine.getPeersBasePath(), peerSign));
     }
@@ -120,7 +142,7 @@ public class ZkCoordinator extends AbstractCoordinator {
         reBalance = new ZkReBalance(zkLocal);
     }
 
-    public void initZkBasePath(){
+    public void initZkBasePath() {
 
         zkBiz.createPath(zkDefine.getBasePath());
         zkBiz.createPath(zkDefine.getTaskBasePath());
