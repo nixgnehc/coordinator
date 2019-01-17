@@ -9,5 +9,5 @@ package cn.bbqiu.middleware;
 
 public interface NotfiyCallBack {
 
-    public void call(String task, Type type);
+    public void call(String task, ReBalanceType type);
 }

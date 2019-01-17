@@ -7,12 +7,12 @@ package cn.bbqiu.middleware;
  * @Description: TODO..
  */
 
-public enum Type {
+public enum ReBalanceType {
     // 丢失任务
     Lose(),
     // 新获取到任务
     Obtain();
 
-    private Type() {
+    private ReBalanceType() {
     }
 }

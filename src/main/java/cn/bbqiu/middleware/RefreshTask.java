@@ -1,7 +1,5 @@
 package cn.bbqiu.middleware;
 
-import org.apache.curator.framework.CuratorFramework;
-
 import java.util.List;
 
 /**
@@ -11,18 +9,18 @@ import java.util.List;
  * @Description: TODO..
  */
 
-public abstract class CoordinatorTaskLoading {
+public abstract class RefreshTask {
 
     /**
      * 任务更新频率, 单位ms
      */
     private Integer rate;
 
-    public CoordinatorTaskLoading(){
+    public RefreshTask(){
         this(60);
     }
 
-    public CoordinatorTaskLoading(Integer rate){
+    public RefreshTask(Integer rate){
         this.rate = rate;
     }
 
@@ -30,7 +28,7 @@ public abstract class CoordinatorTaskLoading {
      * 任务加载方法,定期执行
      * ps:需要加载说有的方法
      */
-    public abstract List<String> loading();
+    public abstract List<String> refresh();
 
     public Integer getRate() {
         return rate;

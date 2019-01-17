@@ -20,7 +20,7 @@ public abstract class AbstractReBalance implements ReBalance {
         List<String> canalTask = Lists.newArrayList();
             local.getLocaTask().stream().forEach(x -> {
                 if (!local.getCoordinatorTask().contains(x)) {
-                    callback.call(x, Type.Lose);
+                    callback.call(x, ReBalanceType.Lose);
                     canalTask.add(x);
                 }
             });
@@ -37,7 +37,7 @@ public abstract class AbstractReBalance implements ReBalance {
                 String task = local.getLocaTask().get(i);
                 if (lose(task)) {
                     local.getLocaTask().remove(i);
-                    callback.call(task, Type.Lose);
+                    callback.call(task, ReBalanceType.Lose);
                 }
             }
         }
@@ -51,7 +51,7 @@ public abstract class AbstractReBalance implements ReBalance {
                 return;
             }
             if (scramble(x)) {
-                callback.call(x, Type.Obtain);
+                callback.call(x, ReBalanceType.Obtain);
                 local.getLocaTask().add(x);
             }
         });

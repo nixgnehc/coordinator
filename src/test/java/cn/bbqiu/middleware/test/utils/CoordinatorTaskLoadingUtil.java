@@ -1,6 +1,6 @@
 package cn.bbqiu.middleware.test.utils;
 
-import cn.bbqiu.middleware.CoordinatorTaskLoading;
+import cn.bbqiu.middleware.RefreshTask;
 import org.testng.collections.Lists;
 
 import java.text.SimpleDateFormat;
@@ -18,8 +18,8 @@ public class CoordinatorTaskLoadingUtil {
 
     static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHH");
 
-    public static CoordinatorTaskLoading coordinatorTaskLoading(){
-        return new CoordinatorTaskLoading() {
+    public static RefreshTask coordinatorTaskLoading(){
+        return new RefreshTask() {
             @Override
             public List<String> loading() {
                 Long taskNum = System.currentTimeMillis() % 20 + 2;

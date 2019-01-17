@@ -9,15 +9,15 @@ package cn.bbqiu.middleware;
 
 public class ReBalanceEvent {
 
-    private Type type;
+    private ReBalanceType type;
 
     private String task;
 
-    public Type getType() {
+    public ReBalanceType getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(ReBalanceType type) {
         this.type = type;
     }
 

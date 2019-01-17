@@ -1,7 +1,6 @@
-package cn.bbqiu.middleware.utils;
+package cn.bbqiu.middleware.peers.ipstrategy;
 
-import cn.bbqiu.middleware.ip.IPAddress;
-import cn.bbqiu.middleware.ip.IPAddressUtil;
+import cn.bbqiu.middleware.peers.PeerInfoStrategy;
 
 import java.net.Inet4Address;
 import java.net.SocketException;
@@ -14,15 +13,13 @@ import java.util.List;
  * @Description:
  */
 
-public class LocalUtil {
+public class IpPeerInfoStrategy implements PeerInfoStrategy {
 
     private static String localSign = "";
 
-    /**
-     * 计算本地标示
-     * @return
-     */
-    public static String sign() {
+
+    @Override
+    public String name() {
 
         if (localSign.length() > 0) {
             return localSign;

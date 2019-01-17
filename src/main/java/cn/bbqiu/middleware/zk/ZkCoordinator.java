@@ -1,13 +1,14 @@
 package cn.bbqiu.middleware.zk;
 
 import cn.bbqiu.middleware.AbstractCoordinator;
-import cn.bbqiu.middleware.CoordinatorTaskLoading;
-import cn.bbqiu.middleware.ReBalanceSource;
 import cn.bbqiu.middleware.TaskManager;
+import com.google.common.collect.Lists;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.*;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.slf4j.Logger;
@@ -51,16 +52,6 @@ public class ZkCoordinator extends AbstractCoordinator {
         zkDefine = new ZkDefine(zkHosts, basePath);
     }
 
-
-    private void initTask() {
-        try {
-            local.setCoordinatorTask(zkLocal.getClient().getChildren().forPath(zkDefine.getTaskBasePath()));
-            local.setLocaTask(new ArrayList<>());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void refreshTask() {
 
@@ -74,7 +65,7 @@ public class ZkCoordinator extends AbstractCoordinator {
                         return;
                     }
 
-                    List<String> list = taskLoad.loading();
+                    List<String> list = taskLoad.refresh();
                     taskManager.revise(list, zkLocal.getCoordinatorTask());
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -93,7 +84,7 @@ public class ZkCoordinator extends AbstractCoordinator {
                 @Override
                 public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
                     logger.debug("监听到任务变化事件");
-                    balance(ReBalanceSource.TASK);
+                    balance();
                 }
 
             });
@@ -115,7 +106,7 @@ public class ZkCoordinator extends AbstractCoordinator {
                 @Override
                 public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
                     logger.debug("监听到一个节点变化事件");
-                    balance(ReBalanceSource.PEER);
+                    balance();
                 }
             });
             cache.start();
@@ -162,6 +153,9 @@ public class ZkCoordinator extends AbstractCoordinator {
     @Override
     public void doLocalRefresh() {
         try {
+            if (null == local.getLocaTask()){
+                local.setLocaTask(Lists.newArrayList());
+            }
             local.setPeerNum(zkLocal.getClient().getChildren().forPath(zkLocal.getZkDefine().getPeersBasePath()).size());
             local.setCoordinatorTask(zkLocal.getClient().getChildren().forPath(zkLocal.getZkDefine().getTaskBasePath()));
         } catch (Exception e) {

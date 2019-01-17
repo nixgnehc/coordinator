@@ -1,6 +1,7 @@
 package cn.bbqiu.middleware;
 
-import cn.bbqiu.middleware.utils.LocalUtil;
+import cn.bbqiu.middleware.peers.PeerInfoStrategy;
+import cn.bbqiu.middleware.peers.ipstrategy.IpPeerInfoStrategy;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +26,13 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
 
     public Local local;
 
-    public int rebalanceFrequency = 30;
+    public int rebalanceFrequency;
 
     public boolean waitRebalance = false;
 
     private List<BusinessListener> listeners = Lists.newArrayList();
 
-    public CoordinatorTaskLoading taskLoad;
+    public RefreshTask taskLoad;
 
     protected ScheduledThreadPoolExecutor scheduled = new ScheduledThreadPoolExecutor(5);
 
@@ -42,25 +43,21 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
 
     public ReBalance reBalance;
 
+    private PeerInfoStrategy peerInfoStrategy;
+
     @Override
-    public void start(CoordinatorTaskLoading load) {
-        String sign = LocalUtil.sign();
-        this.start(load, sign);
+    public void start(RefreshTask load, Integer rebalanceFrequency) {
+        peerInfoStrategy = new IpPeerInfoStrategy();
+
+        start(load, peerInfoStrategy.name(), rebalanceFrequency);
     }
 
     @Override
-    public void start(CoordinatorTaskLoading load, String localSign, Integer rebalanceFrequency) {
-        String sign = LocalUtil.sign();
-        this.rebalanceFrequency = rebalanceFrequency;
+    public void start(RefreshTask load, String peerName, Integer rebalanceFrequency) {
 
-        this.start(load, sign);
-    }
-
-
-    @Override
-    public void start(CoordinatorTaskLoading load, String peerName) {
-        this.peerName = peerName;
         this.taskLoad = load;
+        this.rebalanceFrequency = rebalanceFrequency;
+        this.peerName = peerName;
 
 
         init();
@@ -71,7 +68,9 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
         doTaskRefresh();
         doPeersRefresh();
         doBalance();
+
     }
+
 
     public void doBalance() {
         scheduled.scheduleAtFixedRate(new Runnable() {
@@ -99,7 +98,7 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
      */
     private NotfiyCallBack callBack = new NotfiyCallBack() {
         @Override
-        public void call(String task, Type type) {
+        public void call(String task, ReBalanceType type) {
             ReBalanceEvent event = new ReBalanceEvent();
             event.setTask(task);
             event.setType(type);
