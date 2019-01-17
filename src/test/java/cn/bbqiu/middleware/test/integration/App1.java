@@ -2,7 +2,7 @@ package cn.bbqiu.middleware.test.integration;
 
 import cn.bbqiu.middleware.Coordinator;
 import cn.bbqiu.middleware.test.utils.CoordinatorTaskLoadingUtil;
-import cn.bbqiu.middleware.zookeeper.ZkCoordinator;
+import cn.bbqiu.middleware.zk.ZkCoordinator;
 
 /**
  * @author: chengxin chengxin@zbj.com

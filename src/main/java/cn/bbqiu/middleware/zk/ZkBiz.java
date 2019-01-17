@@ -1,4 +1,4 @@
-package cn.bbqiu.middleware.zookeeper;
+package cn.bbqiu.middleware.zk;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
@@ -47,6 +47,9 @@ public class ZkBiz {
     }
 
     public Boolean createProvisionalPath(String path) {
+        if (!checkePath(path)) {
+            return false;
+        }
         try {
             if (null != client.checkExists().forPath(path)) {
                 return true;
@@ -69,7 +72,7 @@ public class ZkBiz {
      * @return
      */
     public Boolean createPath(String path) {
-        if (checkePath(path)) {
+        if (!checkePath(path)) {
             return false;
         }
         try {

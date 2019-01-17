@@ -1,7 +1,6 @@
 package cn.bbqiu.middleware;
 
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +16,8 @@ import java.util.Map;
 
 public abstract class AbstractTaskManager implements TaskManager {
 
-    Gson gson = new Gson();
-    Logger logger = LoggerFactory.getLogger(AbstractTaskManager.class);
+    private Logger logger = LoggerFactory.getLogger(AbstractTaskManager.class);
+
     @Override
     public void revise(List<String> currentTask, List<String> coordinatorTask) {
 
@@ -34,7 +33,7 @@ public abstract class AbstractTaskManager implements TaskManager {
             });
         }
         if (null != currentTask) {
-            logger.debug("currentTask:", currentTask.size());
+            logger.debug(String.format("currentTask:%d", currentTask.size()));
             currentTask.stream().forEach(x -> {
                 TaskSurvivalEntity entity = survivalMap.get(x);
                 if (null != entity) {

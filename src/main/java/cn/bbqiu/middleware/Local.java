@@ -24,6 +24,10 @@ public abstract class Local {
         return peerNum;
     }
 
+    public void setLocaTask(List<String> locaTask) {
+        this.locaTask = locaTask;
+    }
+
     public void setPeerNum(Integer peerNum) {
         this.peerNum = peerNum;
         calculationLocalMaxTask();
@@ -50,14 +54,13 @@ public abstract class Local {
 
     /**
      * 计算本地最大任务
+     * 这是一段富含哲学逻辑的代码
      */
-    private void calculationLocalMaxTask(){
-        if (null == coordinatorTask) {
-            this.maxTask = 0;
-            return;
-        }
-        this.maxTask = coordinatorTask.size() / peerNum;
-        if (0 != coordinatorTask.size() % peerNum) {
+    private void calculationLocalMaxTask() {
+        int size = (null == coordinatorTask ? 0 : coordinatorTask.size());
+        peerNum = ((null == peerNum || peerNum == 0) ? 1 : peerNum);
+        this.maxTask = size / peerNum;
+        if (0 != size % peerNum) {
             this.maxTask++;
         }
     }

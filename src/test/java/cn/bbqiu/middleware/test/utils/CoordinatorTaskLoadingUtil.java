@@ -26,7 +26,7 @@ public class CoordinatorTaskLoadingUtil {
                 List<String> tasks = Lists.newArrayList();
                 Date date = new Date();
                 for (long i = 0 ; i <= taskNum; i++){
-                    tasks.add(String.format("%s%d",formatter.format(date), i));
+                    tasks.add(String.format("%s%dt",formatter.format(date), i));
                 }
                 return tasks;
             }

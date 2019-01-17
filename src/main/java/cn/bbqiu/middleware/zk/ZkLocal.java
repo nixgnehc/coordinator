@@ -1,4 +1,4 @@
-package cn.bbqiu.middleware.zookeeper;
+package cn.bbqiu.middleware.zk;
 
 import cn.bbqiu.middleware.Local;
 import com.google.common.collect.Maps;

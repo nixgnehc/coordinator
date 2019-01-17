@@ -1,5 +1,7 @@
 package cn.bbqiu.middleware;
 
+import org.apache.curator.framework.CuratorFramework;
+
 import java.util.List;
 
 /**

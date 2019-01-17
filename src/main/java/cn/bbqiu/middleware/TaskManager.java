@@ -18,14 +18,14 @@ public interface TaskManager {
      *
      * @param task
      */
-    public void createTask(String task);
+    public boolean createTask(String task);
 
     /**
      * 删除任务
      *
      * @param task
      */
-    public void deleteTask(String task);
+    public boolean deleteTask(String task);
 
     /**
      * 修订任务

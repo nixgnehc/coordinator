@@ -1,22 +1,18 @@
-package cn.bbqiu.middleware.zookeeper;
+package cn.bbqiu.middleware.zk;
 
 import cn.bbqiu.middleware.AbstractCoordinator;
 import cn.bbqiu.middleware.ReBalanceSource;
 import cn.bbqiu.middleware.TaskManager;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Singular;
 import org.apache.curator.RetryPolicy;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.NodeCache;
-import org.apache.curator.framework.recipes.cache.NodeCacheListener;
+import org.apache.curator.framework.recipes.cache.*;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.soap.Node;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -55,14 +51,25 @@ public class ZkCoordinator extends AbstractCoordinator {
     }
 
 
+    private void initTask(){
+        try {
+            local.setCoordinatorTask(zkLocal.getClient().getChildren().forPath(zkDefine.getTaskBasePath()));
+            local.setLocaTask(new ArrayList<>());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public void coordinatorTask() {
+
+        initTask();
 
         InterProcessSemaphoreMutex zkLock = new InterProcessSemaphoreMutex(zkLocal.getClient(), zkDefine.getLockBasePath());
         scheduledThreadPoolExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 try {
+
                     if (!(zkLock.acquire(0, TimeUnit.SECONDS) || zkLock.isAcquiredInThisProcess())) {
                         return;
                     }
@@ -82,22 +89,22 @@ public class ZkCoordinator extends AbstractCoordinator {
     @Override
     public void localTask() {
         try {
-            NodeCache nodeCache = new NodeCache(zkLocal.getClient(), zkDefine.getTaskBasePath());
+            logger.debug(String.format("listenter:%s", zkDefine.getTaskBasePath()));
+            PathChildrenCache cache = new PathChildrenCache(zkLocal.getClient(), zkDefine.getTaskBasePath(), true);
 
-            nodeCache.getListenable().addListener(new NodeCacheListener() {
+            cache.getListenable().addListener(new PathChildrenCacheListener() {
                 @Override
-                public void nodeChanged() throws Exception {
-
-                    List<String> list = zkLocal.getClient().getChildren().forPath(zkDefine.getTaskBasePath());
-                    logger.debug(String.format("trigger localTask, task size:%d", list.size()));
-                    zkLocal.setCoordinatorTask(list);
+                public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+                    logger.debug("监听到任务变化事件");
+                    zkLocal.setCoordinatorTask(zkLocal.getClient().getChildren().forPath(zkDefine.getTaskBasePath()));
                     balance(ReBalanceSource.TASK);
                 }
+
             });
-            nodeCache.start(true);
+            cache.start();
         } catch (Exception e) {
-            logger.error("localTask :", e);
             e.printStackTrace();
+            logger.error("localTask:", e);
         }
     }
 
@@ -105,15 +112,17 @@ public class ZkCoordinator extends AbstractCoordinator {
     public void peers() {
 
         try {
-            NodeCache nodeCache = new NodeCache(zkLocal.getClient(), zkDefine.getPeersBasePath());
-            nodeCache.getListenable().addListener(new NodeCacheListener() {
+            PathChildrenCache cache = new PathChildrenCache(zkLocal.getClient(), zkDefine.getPeersBasePath(), true);
+
+            cache.getListenable().addListener(new PathChildrenCacheListener() {
                 @Override
-                public void nodeChanged() throws Exception {
+                public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+                    logger.debug("监听到一个节点变化事件");
                     zkLocal.setPeerNum(zkLocal.getClient().getChildren().forPath(zkDefine.getPeersBasePath()).size());
                     balance(ReBalanceSource.PEER);
                 }
             });
-            nodeCache.start(true);
+            cache.start();
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("peers:", e);

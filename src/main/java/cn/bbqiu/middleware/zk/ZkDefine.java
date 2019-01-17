@@ -1,4 +1,4 @@
-package cn.bbqiu.middleware.zookeeper;
+package cn.bbqiu.middleware.zk;
 
 /**
  * @author: nixgnehc nixgnehc@163.com
@@ -26,9 +26,9 @@ public class ZkDefine {
         this.zkHosts = zkHosts;
         this.basePath = basePath;
         this.lockBasePath = String.format("%s/%s", basePath, "lock");
-        this.taskBasePath = String.format("%s/%s", basePath, "task");
+        this.taskBasePath = String.format("%s/%s", basePath, "tasks");
         this.peersBasePath = String.format("%s/%s", basePath, "peers");
-        this.maintenanceBasePath = String.format("%s/$s", basePath, "maintain");
+        this.maintenanceBasePath = String.format("%s/%s", basePath, "maintain");
     }
 
 
