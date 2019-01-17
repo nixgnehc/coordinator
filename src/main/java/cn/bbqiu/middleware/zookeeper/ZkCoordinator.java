@@ -3,7 +3,10 @@ package cn.bbqiu.middleware.zookeeper;
 import cn.bbqiu.middleware.AbstractCoordinator;
 import cn.bbqiu.middleware.ReBalanceSource;
 import cn.bbqiu.middleware.TaskManager;
-import cn.bbqiu.middleware.utils.LocalUtil;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Singular;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.NodeCache;
@@ -31,12 +34,20 @@ public class ZkCoordinator extends AbstractCoordinator {
 
     private TaskManager taskManager;
 
+    @Getter
+    private int taskRefreshFrequency = 60;
+
     /**
      * @param zkHosts  host:port,host1:port1......
      * @param basePath zk中的基础目录
      */
     public ZkCoordinator(String zkHosts, String basePath) {
         zkDefine = new ZkDefine(zkHosts, basePath);
+    }
+
+    public ZkCoordinator(String zkHosts, String basePath, int taskRefreshFrequency) {
+        zkDefine = new ZkDefine(zkHosts, basePath);
+        this.taskRefreshFrequency = taskRefreshFrequency;
     }
 
 
@@ -61,7 +72,7 @@ public class ZkCoordinator extends AbstractCoordinator {
                     e.printStackTrace();
                 }
             }
-        }, 10, 60, TimeUnit.SECONDS);
+        }, 10, taskRefreshFrequency, TimeUnit.SECONDS);
     }
 
     @Override
@@ -92,6 +103,7 @@ public class ZkCoordinator extends AbstractCoordinator {
     @Override
     public void init() {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+
         local = new ZkLocal();
         zkLocal = (ZkLocal) local;
 
@@ -99,14 +111,22 @@ public class ZkCoordinator extends AbstractCoordinator {
         zkLocal.getClient().start();
 
         zkBiz = new ZkBiz(zkLocal.getClient());
-        zkBiz.createPath(zkDefine.getBasePath());
-        zkBiz.createPath(zkDefine.getTaskBasePath());
+
+
+        this.initZkBasePath();
 
         taskManager = new ZkTaskManager(zkBiz, zkDefine);
 
         reBalance = new ZkReBalance(zkLocal);
     }
 
+    public void initZkBasePath(){
+
+        zkBiz.createPath(zkDefine.getBasePath());
+        zkBiz.createPath(zkDefine.getTaskBasePath());
+        zkBiz.createPath(zkDefine.getPeersBasePath());
+
+    }
 
     @Override
     public void maintenance() {

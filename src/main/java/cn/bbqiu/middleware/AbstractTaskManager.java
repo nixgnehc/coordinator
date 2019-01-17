@@ -1,6 +1,9 @@
 package cn.bbqiu.middleware;
 
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -14,24 +17,28 @@ import java.util.Map;
 
 public abstract class AbstractTaskManager implements TaskManager {
 
+    Gson gson = new Gson();
+    Logger logger = LoggerFactory.getLogger(AbstractTaskManager.class);
     @Override
     public void revise(List<String> currentTask, List<String> coordinatorTask) {
 
-        Map<String, TaskSurvivalEntity> map = Maps.newHashMap();
+        Map<String, TaskSurvivalEntity> survivalMap = Maps.newHashMap();
         if (null != coordinatorTask) {
+            logger.debug("coordinatorTask:", coordinatorTask.size());
             coordinatorTask.stream().forEach(x -> {
                 TaskSurvivalEntity entity = new TaskSurvivalEntity();
                 entity.setInCoordinator(true);
                 entity.setInCurrent(false);
                 entity.setTask(x);
-                map.put(x, entity);
+                survivalMap.put(x, entity);
             });
         }
         if (null != currentTask) {
+            logger.debug("currentTask:", currentTask.size());
             currentTask.stream().forEach(x -> {
-                TaskSurvivalEntity entity = map.get(x);
+                TaskSurvivalEntity entity = survivalMap.get(x);
                 if (null != entity) {
-                    map.remove(entity);
+                    survivalMap.remove(x, entity);
                 } else {
                     entity = new TaskSurvivalEntity();
 
@@ -39,13 +46,13 @@ public abstract class AbstractTaskManager implements TaskManager {
                     entity.setInCoordinator(false);
                     entity.setInCurrent(true);
 
-                    map.put(x, entity);
+                    survivalMap.put(x, entity);
                 }
             });
         }
 
-        map.entrySet().stream().forEach(x -> {
-            TaskSurvivalEntity entity = map.get(x);
+        survivalMap.entrySet().stream().forEach(x -> {
+            TaskSurvivalEntity entity = x.getValue();
             if (entity.getInCurrent() && !entity.getInCoordinator()) {
 
                 createTask(entity.getTask());

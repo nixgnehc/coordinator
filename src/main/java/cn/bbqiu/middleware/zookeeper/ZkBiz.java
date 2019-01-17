@@ -6,7 +6,7 @@ import org.apache.zookeeper.CreateMode;
 import java.util.Arrays;
 
 /**
-* @author: nixgnehc nixgnehc@163.com
+ * @author: nixgnehc nixgnehc@163.com
  * @date: 19-1-16
  * @time: 上午11:04
  * @Description: TODO..
@@ -66,7 +66,7 @@ public class ZkBiz {
      * @return
      */
     protected Boolean createPath(String path) {
-        if (!checkePath(path)) {
+        if (checkePath(path)) {
             return false;
         }
         try {
@@ -89,19 +89,21 @@ public class ZkBiz {
     private String arrayPath(String[] pathArray) {
         String path = "";
         for (int i = 0; i < pathArray.length; i++) {
-            if (i > 0) {
-                path += "/";
+            if (pathArray[i].length() == 0) {
+                continue;
             }
+            path += "/";
             path += pathArray[i];
         }
         return path;
     }
 
     private String[] pathArray(String path) {
+        path = path.substring(1, path.length() - 1);
         return path.split("/");
     }
 
-    private Boolean checkePath(String path) {
+    public Boolean checkePath(String path) {
         if (!path.substring(0, 1).equals("/")) {
             return false;
         }
