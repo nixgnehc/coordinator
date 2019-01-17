@@ -64,7 +64,7 @@ public class ZkCoordinator extends AbstractCoordinator {
         new NodeCache(zkLocal.getClient(), zkDefine.getTaskBasePath()).getListenable().addListener(new NodeCacheListener() {
             @Override
             public void nodeChanged() throws Exception {
-                zkLocal.setLocaTask(zkLocal.getClient().getChildren().forPath(zkDefine.getTaskBasePath()));
+                zkLocal.setCoordinatorTask(zkLocal.getClient().getChildren().forPath(zkDefine.getTaskBasePath()));
                 balance(ReBalanceSource.TaskChange);
             }
         });

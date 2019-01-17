@@ -20,7 +20,7 @@ public abstract class AbstractReBalance implements ReBalance {
     }
 
     @Override
-    public void CoordinatorTaskChange(NotfiyCallBack callback, Local local) {
+    public void coordinatorTaskChange(NotfiyCallBack callback, Local local) {
         List<String> canalTask = Lists.newArrayList();
         local.getLocaTask().stream().forEach(x -> {
             if (!local.getCoordinatorTask().contains(x)) {

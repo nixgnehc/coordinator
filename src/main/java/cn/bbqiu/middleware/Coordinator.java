@@ -12,7 +12,7 @@ import java.util.List;
 public interface Coordinator {
 
     /**
-     * 初始化
+     * 启动
      * @param task
      */
     public void start(CoordinatorTaskLoading task);
@@ -29,4 +29,6 @@ public interface Coordinator {
      * @return
      */
     public List<String> currentLocalTask();
+
+
 }

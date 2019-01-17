@@ -19,10 +19,6 @@ public abstract class Local {
 
     private Integer peerNum;
 
-    public Integer getPeerNum() {
-        return peerNum;
-    }
-
     public void setPeerNum(Integer peerNum) {
         this.peerNum = peerNum;
         calculationLocalMaxTask();
@@ -35,10 +31,6 @@ public abstract class Local {
 
     public List<String> getLocaTask() {
         return locaTask;
-    }
-
-    public void setLocaTask(List<String> locaTask) {
-        this.locaTask = locaTask;
     }
 
 
