@@ -15,33 +15,33 @@ public interface Worker {
     public void init();
 
     /**
-     * Coordinator中的task
+     * Coordinator中的task 刷新
      */
-    public void coordinatorTask();
+    public void refreshTask();
 
     /**
-     * 节点
+     * 节点发生变化
      */
-    public void peers();
-
-
-    /**
-     * 当前节点task
-     */
-    public void localTask();
+    public void doPeersRefresh();
 
     /**
-     * 触发再平衡,通知业务程序
+     * 注册当前节点
      */
-    public void balance(ReBalanceSource source);
+    public void registerLocalPeer();
 
     /**
-     * 进入维护状态
+     * 任务发生变化
      */
-    public void maintenance();
+    public void doTaskRefresh();
 
     /**
-     * 进入工作状态中
+     * 触发再平衡
      */
-    public void atwork();
+    public void balance();
+
+    /**
+     * 本地数据刷新
+     */
+    public void doLocalRefresh();
+
 }
