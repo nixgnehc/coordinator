@@ -63,10 +63,7 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
         }
         reBalance.localLose(callBack, local);
         reBalance.localScramble(callBack, local);
-        // todo...
-//        reBalances.stream().forEach(x->{
-//            x.balance(callBack, local);
-//        });
+
     }
 
     /**

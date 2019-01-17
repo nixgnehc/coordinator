@@ -26,7 +26,7 @@ public class ZkBiz {
      * @param path
      * @return
      */
-    protected Boolean deletePath(String path) {
+    public Boolean deletePath(String path) {
         if (!checkePath(path)) {
             return false;
         }
@@ -48,6 +48,9 @@ public class ZkBiz {
 
     public Boolean createProvisionalPath(String path) {
         try {
+            if (null != client.checkExists().forPath(path)) {
+                return true;
+            }
             client.create().withMode(CreateMode.EPHEMERAL).forPath(path);
             return true;
         } catch (Exception e) {
@@ -65,7 +68,7 @@ public class ZkBiz {
      * @param path
      * @return
      */
-    protected Boolean createPath(String path) {
+    public Boolean createPath(String path) {
         if (checkePath(path)) {
             return false;
         }
@@ -107,10 +110,6 @@ public class ZkBiz {
         if (!path.substring(0, 1).equals("/")) {
             return false;
         }
-        if (!path.substring(path.length() - 2, path.length() - 1).equals("/")) {
-            return false;
-        }
-
         return true;
     }
 }
