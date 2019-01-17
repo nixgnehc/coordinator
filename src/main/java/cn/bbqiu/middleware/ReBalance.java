@@ -33,12 +33,12 @@ public interface ReBalance {
      * @param callback
      * @param local
      */
-    public void LocalLose(NotfiyCallBack callback, Local local);
+    public void localLose(NotfiyCallBack callback, Local local);
 
     /**
      * 由于本地持有task数量不足最大task数目,主动竞争
      * @param callback
      * @param local
      */
-    public void LocaScramble(NotfiyCallBack callback, Local local);
+    public void localScramble(NotfiyCallBack callback, Local local);
 }

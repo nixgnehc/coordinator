@@ -1,5 +1,6 @@
 package cn.bbqiu.middleware;
 
+import cn.bbqiu.middleware.utils.LocalUtil;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -14,6 +15,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public abstract class AbstractCoordinator implements Coordinator, Worker {
 
+    public Boolean maintenanceSign = false;
+
+    public String peerSign = "";
 
     public Local local;
 
@@ -36,7 +40,14 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
     public ReBalance reBalance;
 
     @Override
-    public void start(CoordinatorTaskLoading load) {
+    public void start(CoordinatorTaskLoading task) {
+        String sign = LocalUtil.sign();
+        this.start(task, sign);
+    }
+
+    @Override
+    public void start(CoordinatorTaskLoading load, String peerSign) {
+        this.peerSign = peerSign;
         this.taskLoad = load;
         init();
         coordinatorTask();
@@ -47,6 +58,11 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
     @Override
     public void balance(ReBalanceSource source) {
 
+        if (source.equals(ReBalanceSource.TASK)) {
+            reBalance.coordinatorTaskChange(callBack, local);
+        }
+        reBalance.localLose(callBack, local);
+        reBalance.localScramble(callBack, local);
         // todo...
 //        reBalances.stream().forEach(x->{
 //            x.balance(callBack, local);
@@ -68,4 +84,17 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
             });
         }
     };
+
+
+    @Override
+    public Boolean maintain(Boolean isMaintain) {
+        if (isMaintain) {
+            this.maintenance();
+            this.maintenanceSign = true;
+        } else {
+            this.atwork();
+            this.maintenanceSign = false;
+        }
+        return isMaintain;
+    }
 }

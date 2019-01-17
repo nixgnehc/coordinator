@@ -1,7 +1,7 @@
 package cn.bbqiu.middleware.zookeeper;
 
 /**
-* @author: nixgnehc nixgnehc@163.com
+ * @author: nixgnehc nixgnehc@163.com
  * @date: 19-1-16
  * @time: 下午4:10
  * @Description: TODO..
@@ -19,6 +19,8 @@ public class ZkDefine {
 
     private String zkHosts;
 
+    private String maintenanceBasePath;
+
 
     public ZkDefine(String zkHosts, String basePath) {
         this.zkHosts = zkHosts;
@@ -26,8 +28,13 @@ public class ZkDefine {
         this.lockBasePath = String.format("%s/%s", basePath, "lock");
         this.taskBasePath = String.format("%s/%s", basePath, "task");
         this.peersBasePath = String.format("%s/%s", basePath, "peers");
+        this.maintenanceBasePath = String.format("%s/$s", basePath, "maintain");
     }
 
+
+    public String getMaintenanceBasePath() {
+        return maintenanceBasePath;
+    }
 
     public String getZkHosts() {
         return zkHosts;

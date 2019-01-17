@@ -34,7 +34,7 @@ public abstract class AbstractReBalance implements ReBalance {
     }
 
     @Override
-    public void LocalLose(NotfiyCallBack callback, Local local) {
+    public void localLose(NotfiyCallBack callback, Local local) {
         Integer needLoseTaskNumber = local.getLocaTask().size() - local.getMaxTask();
         if (needLoseTaskNumber > 0) {
             for (int i = 0; i < needLoseTaskNumber; i++) {
@@ -48,7 +48,7 @@ public abstract class AbstractReBalance implements ReBalance {
     }
 
     @Override
-    public void LocaScramble(NotfiyCallBack callback, Local local) {
+    public void localScramble(NotfiyCallBack callback, Local local) {
         local.getCoordinatorTask().stream().forEach(x -> {
             if (local.getLocaTask().size() >= local.getMaxTask()) {
                 return;

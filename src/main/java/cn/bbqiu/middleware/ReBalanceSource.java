@@ -9,8 +9,8 @@ package cn.bbqiu.middleware;
 
 public enum ReBalanceSource {
 
-    PeerChange(), TaskChange(),
-    ;
+    PEER,TASK;
 
     ReBalanceSource() {
-    }}
+    }
+}

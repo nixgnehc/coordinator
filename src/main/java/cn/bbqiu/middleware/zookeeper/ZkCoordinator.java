@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* @author: nixgnehc nixgnehc@163.com
+ * @author: nixgnehc nixgnehc@163.com
  * @date: 19-1-15
  * @time: 下午10:36
  * @Description: TODO..
@@ -48,10 +48,15 @@ public class ZkCoordinator extends AbstractCoordinator {
             @Override
             public void run() {
                 try {
-                    if (zkLock.acquire(0, TimeUnit.SECONDS) || zkLock.isAcquiredInThisProcess()) {
-                        List<String> list = taskLoad.loading();
-                        taskManager.revise(list, zkLocal.getCoordinatorTask());
+                    if (!(zkLock.acquire(0, TimeUnit.SECONDS) && zkLock.isAcquiredInThisProcess())) {
+                        return;
                     }
+                    if (maintenanceSign) {
+                        taskManager.clean(local.getCoordinatorTask());
+                        return;
+                    }
+                    List<String> list = taskLoad.loading();
+                    taskManager.revise(list, zkLocal.getCoordinatorTask());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -65,7 +70,7 @@ public class ZkCoordinator extends AbstractCoordinator {
             @Override
             public void nodeChanged() throws Exception {
                 zkLocal.setCoordinatorTask(zkLocal.getClient().getChildren().forPath(zkDefine.getTaskBasePath()));
-                balance(ReBalanceSource.TaskChange);
+                balance(ReBalanceSource.TASK);
             }
         });
     }
@@ -77,11 +82,11 @@ public class ZkCoordinator extends AbstractCoordinator {
             @Override
             public void nodeChanged() throws Exception {
                 zkLocal.setPeerNum(zkLocal.getClient().getChildren().forPath(zkDefine.getPeersBasePath()).size());
-                balance(ReBalanceSource.PeerChange);
+                balance(ReBalanceSource.PEER);
             }
         });
 
-        zkBiz.createProvisionalPath(String.format("%s/%s", zkDefine.getPeersBasePath(), LocalUtil.sign()));
+        zkBiz.createProvisionalPath(String.format("%s/%s", zkDefine.getPeersBasePath(), peerSign));
     }
 
     @Override
@@ -103,4 +108,14 @@ public class ZkCoordinator extends AbstractCoordinator {
     }
 
 
+    @Override
+    public void maintenance() {
+        zkBiz.createPath(zkDefine.getMaintenanceBasePath());
+        taskManager.clean(zkLocal.getCoordinatorTask());
+    }
+
+    @Override
+    public void atwork() {
+        zkBiz.deletePath(zkDefine.getMaintenanceBasePath());
+    }
 }

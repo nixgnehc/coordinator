@@ -1,5 +1,7 @@
 package cn.bbqiu.middleware;
 
+import com.google.common.collect.Lists;
+
 import java.util.List;
 
 /**
@@ -29,4 +31,9 @@ public interface TaskManager {
      * 修订任务
      */
     public void revise(List<String> currentTask, List<String> coordinatorTask);
+
+    /**
+     * 清空任务
+     */
+    public void clean(List<String> tasks);
 }

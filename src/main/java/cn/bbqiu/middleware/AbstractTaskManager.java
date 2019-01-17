@@ -56,4 +56,10 @@ public abstract class AbstractTaskManager implements TaskManager {
     }
 
 
+    @Override
+    public void clean(List<String> tasks) {
+        tasks.stream().forEach(x->{
+            deleteTask(x);
+        });
+    }
 }

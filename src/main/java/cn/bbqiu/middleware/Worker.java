@@ -34,4 +34,14 @@ public interface Worker {
      * 触发再平衡,通知业务程序
      */
     public void balance(ReBalanceSource source);
+
+    /**
+     * 进入维护状态
+     */
+    public void maintenance();
+
+    /**
+     * 进入工作状态中
+     */
+    public void atwork();
 }
