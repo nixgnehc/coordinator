@@ -1,5 +1,7 @@
 package cn.bbqiu.middleware.coordinator;
 
+import java.util.List;
+
 /**
  * @author: nixgnehc nixgnehc@163.com
  * @date: 19-1-15
@@ -32,4 +34,9 @@ public interface Coordinator {
     public void register(BusinessListener listener);
 
 
+    /**
+     * 本地task
+     * @return
+     */
+    public List<String> localTask();
 }

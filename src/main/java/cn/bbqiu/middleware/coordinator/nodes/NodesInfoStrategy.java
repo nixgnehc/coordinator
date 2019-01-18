@@ -1,4 +1,4 @@
-package cn.bbqiu.middleware.coordinator.peers;
+package cn.bbqiu.middleware.coordinator.nodes;
 
 /**
  * @author: chengxin chengxin@zbj.com
@@ -7,7 +7,7 @@ package cn.bbqiu.middleware.coordinator.peers;
  * @Description: 节点名称策略
  */
 
-public interface PeerInfoStrategy {
+public interface NodesInfoStrategy {
 
     public String name();
 }

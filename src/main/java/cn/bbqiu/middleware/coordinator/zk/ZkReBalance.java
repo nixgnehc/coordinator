@@ -24,8 +24,12 @@ public class ZkReBalance extends AbstractReBalance {
 
     @Override
     public Boolean lose(String task) {
+        String taskPath = String.format("%s/%s", zkLocal.getZkDefine().getTaskBasePath(), task);
         try {
-            zkLocal.getLocalTaskLockMap().get(task).release();
+            InterProcessSemaphoreMutex lock = zkLocal.getLocalTaskLockMap().get(task);
+            if (lock.isAcquiredInThisProcess()) {
+                lock.release();
+            }
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -36,9 +40,9 @@ public class ZkReBalance extends AbstractReBalance {
     @Override
     public Boolean scramble(String task) {
         String taskPath = String.format("%s/%s", zkLocal.getZkDefine().getTaskBasePath(), task);
-        InterProcessSemaphoreMutex lock = new InterProcessSemaphoreMutex(zkLocal.getClient(), zkLocal.getZkDefine().getLockBasePath());
+        InterProcessSemaphoreMutex lock = new InterProcessSemaphoreMutex(zkLocal.getClient(), taskPath);
         try {
-            if (lock.acquire(0, TimeUnit.SECONDS)){
+            if (lock.acquire(0, TimeUnit.SECONDS)) {
                 zkLocal.getLocaTask().add(task);
                 zkLocal.getLocalTaskLockMap().put(task, lock);
                 return true;

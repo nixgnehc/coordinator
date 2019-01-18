@@ -32,8 +32,4 @@ public interface TaskManager {
      */
     public void revise(List<String> currentTask, List<String> coordinatorTask);
 
-    /**
-     * 清空任务
-     */
-    public void clean(List<String> tasks);
 }

@@ -1,8 +1,9 @@
 package cn.bbqiu.middleware.coordinator;
 
-import cn.bbqiu.middleware.coordinator.peers.PeerInfoStrategy;
-import cn.bbqiu.middleware.coordinator.peers.ipstrategy.IpPeerInfoStrategy;
+import cn.bbqiu.middleware.coordinator.nodes.NodesInfoStrategy;
+import cn.bbqiu.middleware.coordinator.nodes.ipstrategy.IpNodeInfoStrategy;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,13 +23,15 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
 
     private Logger logger = LoggerFactory.getLogger(AbstractCoordinator.class);
 
-    public String peerName = "";
+    public String nodeName = "";
 
     public Local local;
 
     public int rebalanceFrequency;
 
     public boolean waitRebalance = false;
+
+    private Gson gson = new Gson();
 
     private List<BusinessListener> listeners = Lists.newArrayList();
 
@@ -43,21 +46,21 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
 
     public ReBalance reBalance;
 
-    private PeerInfoStrategy peerInfoStrategy;
+    private NodesInfoStrategy peerInfoStrategy;
 
     @Override
     public void start(RefreshTask load, Integer rebalanceFrequency) {
-        peerInfoStrategy = new IpPeerInfoStrategy();
+        peerInfoStrategy = new IpNodeInfoStrategy();
 
         start(load, peerInfoStrategy.name(), rebalanceFrequency);
     }
 
     @Override
-    public void start(RefreshTask load, String peerName, Integer rebalanceFrequency) {
+    public void start(RefreshTask load, String nodeName, Integer rebalanceFrequency) {
 
         this.taskLoad = load;
         this.rebalanceFrequency = rebalanceFrequency;
-        this.peerName = peerName;
+        this.nodeName = nodeName;
 
 
         init();
@@ -76,14 +79,21 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
         scheduled.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if (waitRebalance) {
-                    logger.debug(String.format("触发数据刷新"));
-                    waitRebalance = false;
-                    doLocalRefresh();
-                    reBalance.coordinatorTaskChange(callBack, local);
-                    reBalance.localLose(callBack, local);
-                    reBalance.localScramble(callBack, local);
+                logger.debug(String.format("触发本地数据数据刷新"));
+                try {
+                    if (waitRebalance) {
+                        waitRebalance = false;
+                        doLocalRefresh();
+                        reBalance.coordinatorTaskChange(callBack, local);
+                        reBalance.localLose(callBack, local);
+                        reBalance.localScramble(callBack, local);
+                        logger.debug(gson.toJson(local.getLocaTask()));
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                    logger.error("doBalance happend error:", e);
                 }
+
             }
         }, rebalanceFrequency, rebalanceFrequency, TimeUnit.SECONDS);
     }
@@ -110,4 +120,8 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
     };
 
 
+    @Override
+    public List<String> localTask() {
+        return local.getLocaTask();
+    }
 }

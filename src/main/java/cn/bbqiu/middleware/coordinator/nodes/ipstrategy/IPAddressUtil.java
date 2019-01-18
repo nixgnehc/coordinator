@@ -1,4 +1,4 @@
-package cn.bbqiu.middleware.coordinator.peers.ipstrategy;
+package cn.bbqiu.middleware.coordinator.nodes.ipstrategy;
 
 import java.net.*;
 import java.util.ArrayList;

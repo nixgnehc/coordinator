@@ -30,11 +30,9 @@ public class ZkCoordinator extends AbstractCoordinator {
 
     private ZkLocal zkLocal;
 
-    private ZkDefine zkDefine;
-
     private TaskManager taskManager;
 
-    private int taskRefreshFrequency = 60;
+    private int taskRefreshFrequency;
 
     private Logger logger = LoggerFactory.getLogger(ZkCoordinator.class);
 
@@ -43,18 +41,20 @@ public class ZkCoordinator extends AbstractCoordinator {
      * @param basePath zk中的基础目录
      */
     public ZkCoordinator(String zkHosts, String basePath) {
-        zkDefine = new ZkDefine(zkHosts, basePath);
+        this(zkHosts, basePath, 60);
     }
 
     public ZkCoordinator(String zkHosts, String basePath, int taskRefreshFrequency) {
         this.taskRefreshFrequency = taskRefreshFrequency;
-        zkDefine = new ZkDefine(zkHosts, basePath);
+        zkLocal = new ZkLocal();
+        zkLocal.setZkDefine(new ZkDefine(zkHosts, basePath));
+        local = zkLocal;
     }
 
     @Override
     public void refreshTask() {
 
-        InterProcessSemaphoreMutex zkLock = new InterProcessSemaphoreMutex(zkLocal.getClient(), zkDefine.getLockBasePath());
+        InterProcessSemaphoreMutex zkLock = new InterProcessSemaphoreMutex(zkLocal.getClient(), zkLocal.getZkDefine().getLockBasePath());
         scheduled.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -76,13 +76,13 @@ public class ZkCoordinator extends AbstractCoordinator {
     @Override
     public void doTaskRefresh() {
         try {
-            logger.debug(String.format("listenter:%s", zkDefine.getTaskBasePath()));
-            PathChildrenCache cache = new PathChildrenCache(zkLocal.getClient(), zkDefine.getTaskBasePath(), true);
+            logger.debug(String.format("listenter:%s", zkLocal.getZkDefine().getTaskBasePath()));
+            PathChildrenCache cache = new PathChildrenCache(zkLocal.getClient(), zkLocal.getZkDefine().getTaskBasePath(), true);
 
             cache.getListenable().addListener(new PathChildrenCacheListener() {
                 @Override
                 public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-                    logger.debug("监听到任务变化事件");
+                    logger.debug("监听到任务变化");
                     balance();
                 }
 
@@ -99,7 +99,7 @@ public class ZkCoordinator extends AbstractCoordinator {
     public void doPeersRefresh() {
 
         try {
-            PathChildrenCache cache = new PathChildrenCache(zkLocal.getClient(), zkDefine.getPeersBasePath(), true);
+            PathChildrenCache cache = new PathChildrenCache(zkLocal.getClient(), zkLocal.getZkDefine().getPeersBasePath(), true);
 
             cache.getListenable().addListener(new PathChildrenCacheListener() {
                 @Override
@@ -116,18 +116,17 @@ public class ZkCoordinator extends AbstractCoordinator {
     }
 
     @Override
-    public void registerLocalPeer(){
-        zkBiz.createProvisionalPath(String.format("%s/%s", zkDefine.getPeersBasePath(), peerName));
+    public void registerLocalPeer() {
+        zkBiz.createProvisionalPath(String.format("%s/%s", zkLocal.getZkDefine().getPeersBasePath(), nodeName));
     }
 
     @Override
     public void init() {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
 
-        local = new ZkLocal();
-        zkLocal = (ZkLocal) local;
+        zkLocal.setZkDefine(zkLocal.getZkDefine());
 
-        zkLocal.setClient(CuratorFrameworkFactory.newClient(zkDefine.getZkHosts(), retryPolicy));
+        zkLocal.setClient(CuratorFrameworkFactory.newClient(zkLocal.getZkDefine().getZkHosts(), retryPolicy));
         zkLocal.getClient().start();
 
         zkBiz = new ZkBiz(zkLocal.getClient());
@@ -135,16 +134,16 @@ public class ZkCoordinator extends AbstractCoordinator {
 
         this.initZkBasePath();
 
-        taskManager = new ZkTaskManager(zkBiz, zkDefine);
+        taskManager = new ZkTaskManager(zkBiz, zkLocal.getZkDefine());
 
         reBalance = new ZkReBalance(zkLocal);
     }
 
     public void initZkBasePath() {
 
-        zkBiz.createPath(zkDefine.getBasePath());
-        zkBiz.createPath(zkDefine.getTaskBasePath());
-        zkBiz.createPath(zkDefine.getPeersBasePath());
+        zkBiz.createPath(zkLocal.getZkDefine().getBasePath());
+        zkBiz.createPath(zkLocal.getZkDefine().getTaskBasePath());
+        zkBiz.createPath(zkLocal.getZkDefine().getPeersBasePath());
 
     }
 
@@ -152,7 +151,7 @@ public class ZkCoordinator extends AbstractCoordinator {
     @Override
     public void doLocalRefresh() {
         try {
-            if (null == local.getLocaTask()){
+            if (null == local.getLocaTask()) {
                 local.setLocaTask(Lists.newArrayList());
             }
             local.setPeerNum(zkLocal.getClient().getChildren().forPath(zkLocal.getZkDefine().getPeersBasePath()).size());

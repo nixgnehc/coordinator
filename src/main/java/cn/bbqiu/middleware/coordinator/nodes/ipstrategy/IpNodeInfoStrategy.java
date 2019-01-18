@@ -1,6 +1,6 @@
-package cn.bbqiu.middleware.coordinator.peers.ipstrategy;
+package cn.bbqiu.middleware.coordinator.nodes.ipstrategy;
 
-import cn.bbqiu.middleware.coordinator.peers.PeerInfoStrategy;
+import cn.bbqiu.middleware.coordinator.nodes.NodesInfoStrategy;
 
 import java.net.Inet4Address;
 import java.net.SocketException;
@@ -13,7 +13,7 @@ import java.util.List;
  * @Description:
  */
 
-public class IpPeerInfoStrategy implements PeerInfoStrategy {
+public class IpNodeInfoStrategy implements NodesInfoStrategy {
 
     private static String localSign = "";
 
