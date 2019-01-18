@@ -2,6 +2,8 @@ package cn.bbqiu.middleware.coordinator.zk;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -15,6 +17,8 @@ import java.util.Arrays;
 public class ZkBiz {
 
     private CuratorFramework client;
+
+    private Logger logger = LoggerFactory.getLogger(ZkBiz.class);
 
     public ZkBiz(CuratorFramework client) {
         this.client = client;
@@ -40,6 +44,8 @@ public class ZkBiz {
             client.delete().forPath(path);
             return true;
         } catch (Exception e) {
+
+            logger.error(String.format("delete path happend error, path: %s", path));
             e.printStackTrace();
         }
 

@@ -21,13 +21,12 @@ public class ZkReBalance extends AbstractReBalance {
         zkLocal = (ZkLocal) local;
     }
 
-
     @Override
     public Boolean lose(String task) {
-        String taskPath = String.format("%s/%s", zkLocal.getZkDefine().getTaskBasePath(), task);
         try {
             InterProcessSemaphoreMutex lock = zkLocal.getLocalTaskLockMap().get(task);
-            if (lock.isAcquiredInThisProcess()) {
+            zkLocal.getLocalTaskLockMap().remove(task);
+            if (null != lock && lock.isAcquiredInThisProcess()) {
                 lock.release();
             }
             return true;

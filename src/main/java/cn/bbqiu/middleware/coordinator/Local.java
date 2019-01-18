@@ -14,7 +14,7 @@ public abstract class Local {
 
     private List<String> locaTask;
 
-    private List<String> coordinatorTask;
+    private List<String> allTast;
 
     private Integer peerNum;
 
@@ -28,7 +28,7 @@ public abstract class Local {
     }
 
     public Integer getMaxTask() {
-        int taskNum = coordinatorTask.size();
+        int taskNum = allTast.size();
         int maxTask = taskNum / peerNum;
         if (0 != taskNum % peerNum) {
             maxTask++;
@@ -41,14 +41,11 @@ public abstract class Local {
         return locaTask;
     }
 
-
-    public List<String> getCoordinatorTask() {
-        return coordinatorTask;
+    public List<String> getAllTast() {
+        return allTast;
     }
 
-    public void setCoordinatorTask(List<String> coordinatorTask) {
-        this.coordinatorTask = coordinatorTask;
+    public void setAllTast(List<String> allTast) {
+        this.allTast = allTast;
     }
-
-
 }

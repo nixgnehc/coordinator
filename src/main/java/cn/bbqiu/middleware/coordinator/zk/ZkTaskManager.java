@@ -31,6 +31,7 @@ public class ZkTaskManager extends AbstractTaskManager {
      */
     @Override
     public boolean createTask(String task) {
+
         String taskPath = String.format("%s/%s", zkDefine.getTaskBasePath(), task);
         boolean result = zkBiz.createPath(taskPath);
         logger.debug(String.format("create task, path:%s, and result:%b", taskPath, result));

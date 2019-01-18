@@ -29,7 +29,7 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
 
     public int rebalanceFrequency;
 
-    public boolean waitRebalance = false;
+    public boolean waitRebalance = true;
 
     private Gson gson = new Gson();
 
@@ -84,7 +84,7 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
                     if (waitRebalance) {
                         waitRebalance = false;
                         doLocalRefresh();
-                        reBalance.coordinatorTaskChange(callBack, local);
+                        reBalance.refreshTask(callBack, local);
                         reBalance.localLose(callBack, local);
                         reBalance.localScramble(callBack, local);
                         logger.debug(String.format("local task:%s", gson.toJson(local.getLocaTask())));

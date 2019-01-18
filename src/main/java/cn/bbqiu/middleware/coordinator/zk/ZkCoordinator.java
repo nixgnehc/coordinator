@@ -65,7 +65,7 @@ public class ZkCoordinator extends AbstractCoordinator {
                         return;
                     }
                     List<String> list = new ArrayList<>(taskLoad.refresh());
-                    taskManager.revise(list, zkLocal.getCoordinatorTask());
+                    taskManager.revise(list, zkLocal.getAllTast());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -155,7 +155,7 @@ public class ZkCoordinator extends AbstractCoordinator {
                 local.setLocaTask(Lists.newArrayList());
             }
             local.setPeerNum(zkLocal.getClient().getChildren().forPath(zkLocal.getZkDefine().getPeersBasePath()).size());
-            local.setCoordinatorTask(zkLocal.getClient().getChildren().forPath(zkLocal.getZkDefine().getTaskBasePath()));
+            local.setAllTast(zkLocal.getClient().getChildren().forPath(zkLocal.getZkDefine().getTaskBasePath()));
         } catch (Exception e) {
             e.printStackTrace();
         }

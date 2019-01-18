@@ -13,19 +13,17 @@ import java.util.List;
 
 public abstract class AbstractReBalance implements ReBalance {
 
-    public Local local;
-
     @Override
-    public void coordinatorTaskChange(NotfiyCallBack callback, Local local) {
+    public void refreshTask(NotfiyCallBack callback, Local local) {
         List<String> canalTask = Lists.newArrayList();
             local.getLocaTask().stream().forEach(x -> {
-                if (!local.getCoordinatorTask().contains(x)) {
+                if (!local.getAllTast().contains(x)) {
                     callback.call(x, ReBalanceType.Lose);
                     canalTask.add(x);
                 }
             });
         canalTask.stream().forEach(x -> {
-            local.getLocaTask().remove(x);
+            lose(x);
         });
     }
 
@@ -45,7 +43,7 @@ public abstract class AbstractReBalance implements ReBalance {
 
     @Override
     public void localScramble(NotfiyCallBack callback, Local local) {
-        local.getCoordinatorTask().stream().forEach(x -> {
+        local.getAllTast().stream().forEach(x -> {
             Integer localTaskNum = (null == local.getLocaTask()? 0 : local.getLocaTask().size());
             if (localTaskNum >= local.getMaxTask()) {
                 return;

@@ -26,7 +26,7 @@ public interface ReBalance {
      * @param callback
      * @param local
      */
-    public void coordinatorTaskChange(NotfiyCallBack callback, Local local);
+    public void refreshTask(NotfiyCallBack callback, Local local);
 
     /**
      * 由于本地丢弃任务,需要进行rebalance
