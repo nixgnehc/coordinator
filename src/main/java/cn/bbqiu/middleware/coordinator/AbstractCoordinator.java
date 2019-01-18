@@ -87,7 +87,7 @@ public abstract class AbstractCoordinator implements Coordinator, Worker {
                         reBalance.coordinatorTaskChange(callBack, local);
                         reBalance.localLose(callBack, local);
                         reBalance.localScramble(callBack, local);
-                        logger.debug(gson.toJson(local.getLocaTask()));
+                        logger.debug(String.format("local task:%s", gson.toJson(local.getLocaTask())));
                     }
                 } catch (Exception e){
                     e.printStackTrace();

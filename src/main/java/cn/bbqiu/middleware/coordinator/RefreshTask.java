@@ -1,6 +1,7 @@
 package cn.bbqiu.middleware.coordinator;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author: nixgnehc nixgnehc@163.com
@@ -28,7 +29,7 @@ public abstract class RefreshTask {
      * 任务加载方法,定期执行
      * ps:需要加载说有的方法
      */
-    public abstract List<String> refresh();
+    public abstract Set<String> refresh();
 
     public Integer getRate() {
         return rate;

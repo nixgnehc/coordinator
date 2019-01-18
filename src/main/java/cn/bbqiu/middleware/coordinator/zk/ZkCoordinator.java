@@ -14,6 +14,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -63,8 +64,7 @@ public class ZkCoordinator extends AbstractCoordinator {
                     if (!(zkLock.acquire(0, TimeUnit.SECONDS) || zkLock.isAcquiredInThisProcess())) {
                         return;
                     }
-
-                    List<String> list = taskLoad.refresh();
+                    List<String> list = new ArrayList<>(taskLoad.refresh());
                     taskManager.revise(list, zkLocal.getCoordinatorTask());
                 } catch (Exception e) {
                     e.printStackTrace();

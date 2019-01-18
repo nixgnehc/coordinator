@@ -9,10 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.collections.Lists;
+import org.testng.collections.Sets;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -42,14 +44,14 @@ public class SignleNodeDebugApp {
     public RefreshTask refreshTask() {
         return new RefreshTask() {
             @Override
-            public List<String> refresh() {
+            public Set<String> refresh() {
                 Long taskNum = System.currentTimeMillis() % 20 + 2;
-                List<String> tasks = Lists.newArrayList();
+                Set<String> tasks = Sets.newHashSet();
                 Date date = new Date();
                 for (long i = 0; i <= taskNum; i++) {
                     tasks.add(String.format("%s%dt", formatter.format(date), i));
                 }
-                logger.debug("refresh task:", gson.toJson(tasks));
+                logger.debug(String.format("refresh task:%s", gson.toJson(tasks)));
                 return tasks;
             }
         };

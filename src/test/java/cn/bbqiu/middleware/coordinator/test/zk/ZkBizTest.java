@@ -3,7 +3,12 @@ package cn.bbqiu.middleware.coordinator.test.zk;
 import cn.bbqiu.middleware.coordinator.test.utils.ZKUtil;
 import cn.bbqiu.middleware.coordinator.zk.ZkBiz;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.*;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -20,7 +25,10 @@ import java.util.concurrent.TimeUnit;
 
 public class ZkBizTest {
 
-    ZkBiz zkBiz = new ZkBiz(ZKUtil.client());
+    Logger logger = LoggerFactory.getLogger(ZkBizTest.class);
+
+    CuratorFramework client = ZKUtil.client();
+    ZkBiz zkBiz = new ZkBiz(client);
 
     @Test
     public void checkePathTest() {
@@ -31,13 +39,26 @@ public class ZkBizTest {
 
 
     @Test
+    public void zkCreateTest() throws Exception {
+        InterProcessSemaphoreMutex lock = new InterProcessSemaphoreMutex(client, "/a/1");
+
+        if (lock.acquire(0, TimeUnit.SECONDS)) {
+            logger.debug("locked");
+        }
+        Assert.assertTrue( lock.isAcquiredInThisProcess());
+        Assert.assertTrue( lock.isAcquiredInThisProcess());
+        Assert.assertTrue( lock.isAcquiredInThisProcess());
+        Assert.assertTrue( lock.isAcquiredInThisProcess());
+    }
+
+    @Test
     public void clean() throws Exception {
         String bashPath = "/";
         CuratorFramework client = ZKUtil.client();
         this.removeAll(bashPath, client);
     }
 
-    private void removeAll(String basePath, CuratorFramework client){
+    private void removeAll(String basePath, CuratorFramework client) {
         List<String> list = null;
         if (basePath.equals("/zookeeper")) {
             return;
@@ -48,7 +69,7 @@ public class ZkBizTest {
             e.printStackTrace();
         }
         if (list != null) {
-            list.stream().forEach(x->{
+            list.stream().forEach(x -> {
                 String child = "";
                 if (basePath.equals("/")) {
                     child = String.format("/%s", x);
@@ -70,7 +91,7 @@ public class ZkBizTest {
 
     @Test
     public void listenerTest() throws Exception {
-        CuratorFramework client = ZKUtil.client();
+
         removeAll("/", client);
         client.create().forPath("/a");
         client.create().forPath("/b");
@@ -104,7 +125,7 @@ public class ZkBizTest {
                 try {
                     client.create().forPath(String.format("/b/%d", System.currentTimeMillis()));
                     client.create().forPath(String.format("/a/%d", System.currentTimeMillis()));
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
