@@ -27,8 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 public class ZkCoordinator extends AbstractCoordinator {
 
-    private ZkBiz zkBiz;
-
     private ZkLocal zkLocal;
 
     private TaskManager taskManager;
@@ -128,9 +126,7 @@ public class ZkCoordinator extends AbstractCoordinator {
 
         zkLocal.setClient(CuratorFrameworkFactory.newClient(zkLocal.getZkDefine().getZkHosts(), retryPolicy));
         zkLocal.getClient().start();
-
-        zkBiz = new ZkBiz(zkLocal.getClient());
-
+        zkLocal.setZkBiz(new ZkBiz(zkLocal.getClient()));
 
         this.initZkBasePath();
 

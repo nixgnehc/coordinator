@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ZkReBalance extends AbstractReBalance {
 
+    private String LOCKVALUE = "_l_";
+
     private ZkLocal zkLocal;
 
     public ZkReBalance(Local local) {
@@ -24,11 +26,9 @@ public class ZkReBalance extends AbstractReBalance {
     @Override
     public Boolean lose(String task) {
         try {
-            InterProcessSemaphoreMutex lock = zkLocal.getLocalTaskLockMap().get(task);
             zkLocal.getLocalTaskLockMap().remove(task);
-            if (null != lock && lock.isAcquiredInThisProcess()) {
-                lock.release();
-            }
+
+            zkLocal.getClient().delete().forPath(String.format("%s/%s/%s", zkLocal.getZkDefine().getTaskBasePath(), task, LOCKVALUE));
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,13 +39,14 @@ public class ZkReBalance extends AbstractReBalance {
     @Override
     public Boolean scramble(String task) {
         String taskPath = String.format("%s/%s", zkLocal.getZkDefine().getTaskBasePath(), task);
-        InterProcessSemaphoreMutex lock = new InterProcessSemaphoreMutex(zkLocal.getClient(), taskPath);
+//        InterProcessSemaphoreMutex lock = new InterProcessSemaphoreMutex(zkLocal.getClient(), taskPath);
         try {
-            if (lock.acquire(0, TimeUnit.SECONDS)) {
+            zkLocal.getClient().create().
+//            if (lock.acquire(0, TimeUnit.SECONDS)) {
                 zkLocal.getLocaTask().add(task);
-                zkLocal.getLocalTaskLockMap().put(task, lock);
+                zkLocal.getLocalTaskLockMap().put(task, true);
                 return true;
-            }
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }

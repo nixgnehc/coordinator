@@ -16,11 +16,21 @@ import java.util.Map;
 
 public class ZkLocal extends Local {
 
-    private Map<String, InterProcessSemaphoreMutex> localTaskLockMap = Maps.newHashMap();
+    private Map<String, Boolean> localTaskLockMap = Maps.newHashMap();
 
     private ZkDefine zkDefine;
 
     private CuratorFramework client;
+
+    public ZkBiz getZkBiz() {
+        return zkBiz;
+    }
+
+    public void setZkBiz(ZkBiz zkBiz) {
+        this.zkBiz = zkBiz;
+    }
+
+    private ZkBiz zkBiz;
 
     public CuratorFramework getClient() {
         return client;
@@ -38,8 +48,7 @@ public class ZkLocal extends Local {
         this.zkDefine = zkDefine;
     }
 
-    public Map<String, InterProcessSemaphoreMutex> getLocalTaskLockMap() {
+    public Map<String, Boolean> getLocalTaskLockMap() {
         return localTaskLockMap;
     }
-
 }
