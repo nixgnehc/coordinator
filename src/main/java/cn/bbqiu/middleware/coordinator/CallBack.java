@@ -9,5 +9,15 @@ package cn.bbqiu.middleware.coordinator;
 
 public interface CallBack {
 
-    public void call(AbstractTask task);
+    /**
+     * start回调
+     * @param task
+     */
+    public void start(AbstractTask task);
+
+    /**
+     * destory 回调
+     * @param task
+     */
+    public void destory(AbstractTask task);
 }

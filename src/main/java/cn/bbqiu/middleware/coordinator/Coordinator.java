@@ -1,5 +1,6 @@
 package cn.bbqiu.middleware.coordinator;
 
+import java.net.SocketException;
 import java.util.List;
 
 /**
@@ -11,11 +12,18 @@ import java.util.List;
 
 public interface Coordinator {
 
-    public void start(int virtualMultiple);
+    public void init() throws Exception;
 
+
+    void start();
+
+    /**
+     * 刷新task
+     * @return
+     */
     public List<AbstractTask> refresh();
+
 
     public void registerCallback(CallBack callBack);
 
-    public void destory();
 }
