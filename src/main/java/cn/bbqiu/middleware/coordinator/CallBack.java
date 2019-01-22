@@ -13,11 +13,11 @@ public interface CallBack {
      * start回调
      * @param task
      */
-    public void start(AbstractTask task);
+    public void start(Task task);
 
     /**
      * destory 回调
      * @param task
      */
-    public void destory(AbstractTask task);
+    public void destory(Task task);
 }

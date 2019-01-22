@@ -1,5 +1,10 @@
 package cn.bbqiu.middleware.coordinator;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Map;
+
 /**
  * @author: chengxin chengxin@zbj.com
  * @date: 19-1-21
@@ -7,7 +12,10 @@ package cn.bbqiu.middleware.coordinator;
  * @Description: TODO..
  */
 
-public abstract class AbstractTask {
+@Getter
+@Setter
+public class Task {
 
     public String identify;
+    public Map<String, String> property;
 }

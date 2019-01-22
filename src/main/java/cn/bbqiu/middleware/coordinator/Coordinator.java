@@ -1,6 +1,5 @@
 package cn.bbqiu.middleware.coordinator;
 
-import java.net.SocketException;
 import java.util.List;
 
 /**
@@ -21,7 +20,7 @@ public interface Coordinator {
      * 刷新task
      * @return
      */
-    public List<AbstractTask> refresh();
+    public List<Task> refresh();
 
 
     public void registerCallback(CallBack callBack);

@@ -1,18 +1,14 @@
 package cn.bbqiu.middleware.coordinator.zk;
 
-import cn.bbqiu.middleware.coordinator.AbstractTask;
+import cn.bbqiu.middleware.coordinator.Task;
 import cn.bbqiu.middleware.coordinator.CallBack;
 import cn.bbqiu.middleware.coordinator.Coordinator;
-import cn.bbqiu.middleware.coordinator.CoordinatorInfo;
 import cn.bbqiu.middleware.coordinator.local.IPAddress;
 import cn.bbqiu.middleware.coordinator.local.IPAddressUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import lombok.Builder;
 
 import java.net.Inet4Address;
-import java.net.SocketException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class ZkCoordinator implements Coordinator {
 
     private final Integer poolCoreSize = Runtime.getRuntime().availableProcessors() * 2;
-    private Map<String, AbstractTask> localTasks = Maps.newHashMap();
+    private Map<String, Task> localTasks = Maps.newHashMap();
     private final ScheduledThreadPoolExecutor scheduled = new ScheduledThreadPoolExecutor(poolCoreSize);
 
     private List<CallBack> callBacks = Lists.newArrayList();
@@ -63,8 +59,7 @@ public abstract class ZkCoordinator implements Coordinator {
             @Override
             public void run() {
                 try {
-                    List<AbstractTask> tasks = refresh();
-                    // todo.... if locked , update tasks;
+                    zkBiz.refreshZkTask(refresh());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -77,19 +72,37 @@ public abstract class ZkCoordinator implements Coordinator {
             public void run() {
 
                 Set<String> nodes = zkBiz.nodes();
-                Set<AbstractTask> tasks = zkBiz.tasks();
-                //todo ... localtask
+                List<Task> zkTasks = zkBiz.allInZkTasks();
 
-
-                callBacks.stream().forEach(x->{
-//                    x.start(tasks.get(0));
-                });
+                // todo...
+//                List<Task> newTask = Lists.newArrayList();
+//                zkTasks.stream().forEach(x -> {
+//                    if (!localTasks.containsKey(x.getIdentify())) {
+//                        newTask.add(x);
+//                    }
+//                });
+//
+//                localTasks.entrySet().stream().forEach(x->{
+//                    if (zkTasks.)
+//                });
+//                newTask.stream().forEach(x->{
+//                    callBacks.stream().forEach(y->{
+//                        y.start(x);
+//                        localTasks.put(x.getIdentify(), x);
+//                    });
+//                });
+//
+//                List<Task> destoryTask = Lists.newArrayList();
+//
+//                callBacks.stream().forEach(x -> {
+////                    x.start(tasks.get(0));
+//                });
             }
-        }, 0 , info.getTaskRefreshFrequency(), TimeUnit.SECONDS);
+        }, 0, info.getTaskRefreshFrequency(), TimeUnit.SECONDS);
     }
 
     @Override
-    public abstract List<AbstractTask> refresh();
+    public abstract List<Task> refresh();
 
     @Override
     public void registerCallback(CallBack callBack) {
